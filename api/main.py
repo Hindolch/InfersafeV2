@@ -1,4 +1,5 @@
-import asyncio
+from api.gateway_impl import app, build_async_client, configure_runtime_state
+"""
 from fastapi import FastAPI, Request
 from fastapi.responses import StreamingResponse
 from models.inference_engine import TinyLLamaModel
@@ -59,7 +60,7 @@ app = FastAPI()
 
 @app.get("/")
 def read_root():
-    return {"message": "InferSafe is up!"}
+    return {"message": "InfersafeV2 is up!"}
 
 metrics_app = make_asgi_app()
 app.mount("/metrics", metrics_app)
@@ -155,3 +156,4 @@ def reload_model():
         return "Model reloaded successfully"
     except Exception as e:
         return Response(f"Failed to reload model: {str(e)}", status_code=500)
+"""

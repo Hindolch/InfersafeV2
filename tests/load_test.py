@@ -16,8 +16,13 @@ async def send_request(i):
         try:
             async with httpx.AsyncClient(timeout=15.0) as client:
                 r = await client.post(
-                    "http://localhost:8000/generate-batch",
-                    json={"prompt": f"Write me a haiku about autumn {i}", "max_tokens": 20},
+                    "http://localhost:8000/v1/chat/completions",
+                    json={
+                        "model": "local-vllm",
+                        "messages": [{"role": "user", "content": f"Write me a haiku about autumn {i}"}],
+                        "max_tokens": 20,
+                        "stream": False,
+                    },
                 )
                 print(f"[{i}] Attempt {attempt}: {r.status_code} - {r.text}")
                 assert r.status_code == 200

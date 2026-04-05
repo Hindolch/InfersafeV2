@@ -1,5 +1,9 @@
 /venv
 /.env
+/myenv
+/PLAN.md
+/ASSIGNMENT.md
+/assets
 .cache
 /__pycache__
 *.pyc

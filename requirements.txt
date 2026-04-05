@@ -1,8 +1,8 @@
-llama-cpp-python
 fastapi
-uvicorn
+httpx
+prometheus_client
 pydantic
 pytest
-httpx
 pytest-asyncio
-prometheus_client
+uvicorn
+torch
