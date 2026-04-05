@@ -78,7 +78,7 @@ venv\Scripts\python.exe -m pytest tests/test_routes.py tests/test_autoscaler.py
 ```
 
 Current result: `8 passed`
-
+[![D:\infersafe\docs\test-case.png](https://github.com/Hindolch/InfersafeV2/blob/main/docs/test-case.png)]
 ## Runtime Defaults And Trade-Offs
 Current default settings:
 - `MODEL_NAME=Qwen/Qwen2.5-0.5B-Instruct-AWQ`
@@ -187,4 +187,8 @@ Observed backend reality:
 - Edge-case matrix: [`docs/edge_case_matrix.md`](/d:/infersafe/docs/edge_case_matrix.md)
 - Evidence log: [`docs/evidence_log.md`](/d:/infersafe/docs/evidence_log.md)
 - Post-mortem: [`docs/postmortem.md`](/d:/infersafe/docs/postmortem.md)
+
+
+
+
 
