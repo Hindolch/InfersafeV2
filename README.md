@@ -12,7 +12,7 @@ This project targets the assignment requirements with:
 - runnable edge-case scripts
 - benchmark, evidence, and post-mortem documentation
 
-The strongest completed parts are the gateway, validation, queueing behavior, observability wiring, and edge-case proofs that can be demonstrated locally. The parts that did not fully land on this machine are documented explicitly in the post-mortem rather than hidden in the README.
+The strongest completed parts are the gateway, validation, queueing behavior, observability wiring, local edge-case proofs, and a successful single-replica quantized `vLLM` run with live benchmark data. The parts that did not fully land on this machine are documented explicitly in the post-mortem rather than hidden in the README.
 
 ## End-to-End Workflow
 The request path is organized as a gateway-first serving pipeline:
@@ -48,18 +48,28 @@ This design keeps policy and resilience logic in the gateway while leaving model
 - HAProxy load-balancer configuration and health checks
 - Prometheus/Grafana wiring
 - edge-case harness scripts under [`tests/edge_cases/`](/d:/infersafe/tests/edge_cases)
-- benchmark, evidence, scorecard, and post-mortem docs
+- benchmark, evidence, edge-case matrix, and post-mortem docs
 
 ## What Worked On This Machine
 The following assignment behaviors were proven locally and are backed by captured outputs:
 - Edge Case 1: context overflow
 - Edge Case 2: thundering herd / overload behavior
 - Edge Case 4: adversarial payloads
+- healthy single-replica `vLLM` serving with `Qwen/Qwen2.5-0.5B-Instruct-AWQ`
+- successful non-streaming and streaming inference through the gateway
+- live TTFT, TBT, latency, and throughput measurements
 
 Supporting evidence lives in:
 - [`docs/evidence_log.md`](/d:/infersafe/docs/evidence_log.md)
 - [`docs/edge_case_matrix.md`](/d:/infersafe/docs/edge_case_matrix.md)
 - [`docs/benchmark_report.md`](/d:/infersafe/docs/benchmark_report.md)
+
+Live benchmark commands used for the successful run:
+
+```bash
+venv\Scripts\python.exe -m tests.benchmark_ramp --url http://localhost:8000/v1/chat/completions --model local-vllm --levels 1,2,4 --requests 12 --max-tokens 32
+venv\Scripts\python.exe -m tests.benchmark_streaming --url http://localhost:8000/v1/chat/completions --model local-vllm --levels 1,2,4 --requests 8 --max-tokens 64
+```
 
 Local validation:
 
@@ -71,26 +81,39 @@ Current result: `8 passed`
 
 ## Runtime Defaults And Trade-Offs
 Current default settings:
-- `MODEL_NAME=Qwen/Qwen2.5-0.5B-Instruct`
+- `MODEL_NAME=Qwen/Qwen2.5-0.5B-Instruct-AWQ`
 - `SERVED_MODEL_NAME=local-vllm`
-- `MAX_MODEL_LEN=4096`
-- `GPU_MEMORY_UTILIZATION=0.72`
-- `MAX_CONTEXT_TOKENS=4096`
-- `MAX_QUEUE_DEPTH=128`
-- `MAX_CONCURRENT_REQUESTS=32`
+- `MAX_MODEL_LEN=2048`
+- `GPU_MEMORY_UTILIZATION=0.55`
+- `MAX_CONTEXT_TOKENS=2048`
+- `MAX_QUEUE_DEPTH=32`
+- `MAX_CONCURRENT_REQUESTS=8`
+- `MAX_NUM_SEQS=4`
+- `MAX_NUM_BATCHED_TOKENS=2048`
 
 These were conscious trade-offs for a constrained `4 GB` GPU:
-- a smaller model was chosen to reduce memory pressure
-- `MAX_MODEL_LEN=4096` was used to limit KV cache growth
+- a smaller quantized model was chosen to reduce memory pressure
+- `MAX_MODEL_LEN=2048` was used to limit KV cache growth
 - `GPU_MEMORY_UTILIZATION` was reduced after a higher value failed during backend startup
+- scheduler pressure was lowered with `MAX_NUM_SEQS=4` and `MAX_NUM_BATCHED_TOKENS=2048`
 
 These choices are legitimate system-design mitigations, but they also have costs:
 - lower `max_model_len` reduces usable context
 - lower GPU memory utilization can reduce batching and cache headroom
 
-## One-Command Setup
+## Setup
+Intended full-topology command:
+
 ```bash
 docker compose -f configs/docker-compose.yml up --build
+```
+
+Constrained-hardware validated path used for the successful live run on this machine:
+
+```bash
+docker compose -f configs/docker-compose.yml down
+docker compose -f configs/docker-compose.yml up --build -d vllm-0 load-balancer gateway prometheus grafana
+docker compose -f configs/docker-compose.yml ps
 ```
 
 Default local endpoints:
@@ -139,8 +162,8 @@ venv\Scripts\python.exe -m tests.edge_cases.edge_case_4_adversarial_payloads --l
 
 ## What Did Not Fully Meet The Assignment
 The incomplete parts were the GPU-heavy end-to-end backend proofs through `vLLM`:
-- a stable healthy `vLLM` serving baseline through the full Docker path
 - a fully measured KV-cache degradation/recovery experiment with real backend throughput numbers
+- a full multi-replica benchmark with all three intended `vLLM` backends healthy at once
 - a complete mid-stream replica-failure proof against a healthy streaming backend
 - a complete mixed-batch GPU-pressure proof under sustained long-request load
 
@@ -156,7 +179,8 @@ Observed backend reality:
 - the initial `vLLM` healthcheck bug was fixed by changing `python` to `python3`
 - after that fix, a real startup failure appeared at `GPU_MEMORY_UTILIZATION=0.85`
 - the logged issue was insufficient free VRAM during engine initialization
-- lowering the budget was the correct mitigation attempt, but stable backend serving still did not fully complete on this machine during the working session
+- lowering the budget and switching to `Qwen/Qwen2.5-0.5B-Instruct-AWQ` with a shorter context made a single-replica live run succeed
+- the remaining limit is not basic serving anymore, but scaling the same setup to the full three-replica assignment target on this hardware
 
 ## Documentation
 - Benchmark report: [`docs/benchmark_report.md`](/d:/infersafe/docs/benchmark_report.md)
