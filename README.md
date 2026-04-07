@@ -3,10 +3,13 @@
 InfersafeV2 is a scalable LLM inference assignment submission built around a FastAPI gateway, `vLLM`, HAProxy, Prometheus, and Grafana. The repository was adapted from an earlier local inference prototype into a more assignment-aligned serving pipeline, with the final submission optimized for reproducibility, observability, and honest reporting under limited hardware.
 
 ## Walkthrough Video
-Project explainer: [InfersafeV2Explainer.mp4](media/videos/infersafev2_manim/480p15/InfersafeV2Explainer.mp4)
+Project explainer
 
-## Submission Summary
-This project targets the assignment requirements with:
+https://github.com/user-attachments/assets/1cfc8cbe-4c3e-477e-a35a-ea592977acd1
+
+
+## InfersafeV2 summary
+This project deals with:
 - an OpenAI-compatible inference gateway
 - queue-aware overload handling
 - multi-replica deployment wiring
@@ -163,7 +166,7 @@ venv\Scripts\python.exe -m tests.edge_cases.edge_case_2_thundering_herd --local-
 venv\Scripts\python.exe -m tests.edge_cases.edge_case_4_adversarial_payloads --local-app
 ```
 
-## What Did Not Fully Meet The Assignment
+## What Did Not Fully Meet The Production-grade norms
 The incomplete parts were the GPU-heavy end-to-end backend proofs through `vLLM`:
 - a fully measured KV-cache degradation/recovery experiment with real backend throughput numbers
 - a full multi-replica benchmark with all three intended `vLLM` backends healthy at once
