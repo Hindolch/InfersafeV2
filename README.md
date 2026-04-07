@@ -2,6 +2,9 @@
 
 InfersafeV2 is a scalable LLM inference assignment submission built around a FastAPI gateway, `vLLM`, HAProxy, Prometheus, and Grafana. The repository was adapted from an earlier local inference prototype into a more assignment-aligned serving pipeline, with the final submission optimized for reproducibility, observability, and honest reporting under limited hardware.
 
+## Walkthrough Video
+Project explainer: [InfersafeV2Explainer.mp4](media/videos/infersafev2_manim/480p15/InfersafeV2Explainer.mp4)
+
 ## Submission Summary
 This project targets the assignment requirements with:
 - an OpenAI-compatible inference gateway
