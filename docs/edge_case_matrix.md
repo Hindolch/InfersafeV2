@@ -1,6 +1,6 @@
 # Edge Case Matrix
 
-This file is the submission tracking for the current machine. 
+This file is the tracking for the current machine. 
 
 | Edge case | Current status | Evidence path | Observed behavior | Fix / mitigation |
 |---|---|---|---|---|
